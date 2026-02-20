@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
+import { loginHandler, signupHandler } from "./auth/auth.controller";
 
 export const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Тест route
-app.get("/health", (_, res) => {
-  res.json({ status: "ok" });
-});
+app.post("/auth/signup", signupHandler);
+app.post("/auth/login", loginHandler);
+
+export default app;

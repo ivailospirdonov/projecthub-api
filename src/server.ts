@@ -1,6 +1,6 @@
+import "dotenv/config";
 import { app } from "./app";
 
-// Порт по подразбиране
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
