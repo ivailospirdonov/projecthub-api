@@ -12,6 +12,38 @@ enum OrganizationRole {
   MEMBER
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum AuditEntityType {
+  PROJECT
+  TASK
+  COMMENT
+  TAG
+  ORGANIZATION
+  USER
+}
+
+enum AuditAction {
+  CREATED
+  UPDATED
+  DELETED
+  STATUS_CHANGED
+  MEMBER_INVITED
+  MEMBER_JOINED
+  ATTACHED
+  DETACHED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -31,8 +63,11 @@ model Organization {
   name      String
   createdAt DateTime @default(now())
 
-  users    UserOrganization[]
-  projects Project[]
+  users       UserOrganization[]
+  projects    Project[]
+  invitations Invitation[]
+  tags        Tag[]
+  auditLogs   AuditLog[]
 }
 
 model Project {
@@ -48,11 +83,11 @@ model Project {
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   description String?
-  status      String   @default("TODO")
-  createdAt   DateTime @default(now())
+  status      TaskStatus @default(TODO)
+  createdAt   DateTime   @default(now())
 
   projectId Int
   project   Project @relation(fields: [projectId], references: [id])
@@ -76,22 +111,26 @@ model Comment {
   author   User @relation(fields: [authorId], references: [id])
 }
 
-model Tag {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  tasks TaskTag[]
-}
-
 model AuditLog {
-  id         Int      @id @default(autoincrement())
-  action     String
-  entityType String
-  entityId   Int
-  createdAt  DateTime @default(now())
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+
+  action     AuditAction
+  entityType AuditEntityType
+  entityId   Int
+
+  metadata Json
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([entityId])
+  @@index([createdAt])
 }
 
 model RefreshToken {
@@ -102,6 +141,19 @@ model RefreshToken {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+}
+
+model Invitation {
+  id             Int              @id @default(autoincrement())
+  email          String
+  organizationId Int
+  role           OrganizationRole
+  status         InvitationStatus @default(PENDING)
+  token          String           @unique
+  expiresAt      DateTime
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model UserOrganization {
@@ -115,9 +167,22 @@ model UserOrganization {
   @@id([userId, organizationId])
 }
 
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  tasks TaskTag[]
+
+  @@unique([name, organizationId])
+}
+
 model TaskTag {
-  taskId Int
-  tagId  Int
+  taskId    Int
+  tagId     Int
+  createdAt DateTime @default(now())
 
   task Task @relation(fields: [taskId], references: [id])
   tag  Tag  @relation(fields: [tagId], references: [id])
