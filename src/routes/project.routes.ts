@@ -1,19 +1,19 @@
 import { Router } from "express";
-import { authenticate } from "../middlewares/auth.middleware";
 import {
-  getProjectHandler,
   createProjectHandler,
   deleteProjectHandler,
-  updateProjectHandler,
+  getProjectHandler,
   listProjectsHandler,
+  updateProjectHandler,
 } from "../controllers/project.controller";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.post("/", authenticate, createProjectHandler);
 router.get("/:id", authenticate, getProjectHandler);
+router.get("/organization/:organizationId", authenticate, listProjectsHandler);
+router.post("/", authenticate, createProjectHandler);
 router.put("/:id", authenticate, updateProjectHandler);
 router.delete("/:id", authenticate, deleteProjectHandler);
-router.get("/organization/:organizationId", authenticate, listProjectsHandler);
 
 export default router;

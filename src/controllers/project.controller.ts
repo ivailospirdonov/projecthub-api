@@ -1,10 +1,23 @@
 import { Request, Response } from "express";
 import * as projectService from "../services/project.services";
+import {
+  CreateProjectInput,
+  createProjectSchema,
+  ListProjectsParams,
+  listProjectsParamsSchema,
+  ListProjectsQuery,
+  listProjectsQuerySchema,
+  ProjectIdParam,
+  projectIdParamSchema,
+  UpdateProjectInput,
+  updateProjectSchema,
+} from "../validators/project.validations";
 
 export async function createProjectHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const { name, description, organizationId } = req.body;
+    const userId = (req as any).user.userId; //remove any;
+    const { name, description, organizationId }: CreateProjectInput =
+      createProjectSchema.parse(req.body);
 
     const project = await projectService.createProject(
       userId,
@@ -22,7 +35,9 @@ export async function createProjectHandler(req: Request, res: Response) {
 export async function getProjectHandler(req: Request, res: Response) {
   try {
     const userId = (req as any).user.userId;
-    const projectId = Number(req.params.id);
+    const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
+      req.params,
+    );
 
     const project = await projectService.getProject(projectId, userId);
     return res.json(project);
@@ -34,9 +49,13 @@ export async function getProjectHandler(req: Request, res: Response) {
 
 export async function updateProjectHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const projectId = Number(req.params.id);
-    const { name, description } = req.body;
+    const userId = (req as any).user.userId; //remove any;
+    const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
+      req.params,
+    );
+    const { name, description }: UpdateProjectInput = updateProjectSchema.parse(
+      req.body,
+    );
 
     const project = await projectService.updateProject(projectId, userId, {
       name,
@@ -51,8 +70,10 @@ export async function updateProjectHandler(req: Request, res: Response) {
 
 export async function deleteProjectHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const projectId = Number(req.params.id);
+    const userId = (req as any).user.userId; //remove any;
+    const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
+      req.params,
+    );
 
     const result = await projectService.deleteProject(projectId, userId);
     return res.json(result);
@@ -64,12 +85,12 @@ export async function deleteProjectHandler(req: Request, res: Response) {
 
 export async function listProjectsHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const organizationId = Number(req.params.organizationId);
-
-    const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
-
-    const take = req.query.take ? Number(req.query.take) : 10;
+    const userId = (req as any).user.userId; //remove any;
+    const { organizationId }: ListProjectsParams =
+      listProjectsParamsSchema.parse(req.params);
+    const { cursor, take }: ListProjectsQuery = listProjectsQuerySchema.parse(
+      req.query,
+    );
 
     const result = await projectService.listProjects(
       userId,

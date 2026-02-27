@@ -67,7 +67,6 @@ model Organization {
   projects    Project[]
   invitations Invitation[]
   tags        Tag[]
-  auditLogs   AuditLog[]
 }
 
 model Project {
@@ -114,9 +113,6 @@ model Comment {
 model AuditLog {
   id Int @id @default(autoincrement())
 
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
@@ -128,7 +124,6 @@ model AuditLog {
 
   createdAt DateTime @default(now())
 
-  @@index([organizationId])
   @@index([entityId])
   @@index([createdAt])
 }

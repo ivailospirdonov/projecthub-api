@@ -1,10 +1,9 @@
+import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
+import { CreateCommentInput } from "../validators/comment.validations";
 
-export async function createComment(
-  userId: number,
-  taskId: number,
-  content: string,
-) {
+export async function createComment(userId: number, input: CreateCommentInput) {
+  const { taskId, content } = input;
   const task = await prisma.task.findUnique({
     where: {
       id: taskId,
@@ -31,13 +30,25 @@ export async function createComment(
     throw new Error("Access denied");
   }
 
-  return prisma.comment.create({
+  let comment = await prisma.comment.create({
     data: {
       content,
       taskId,
       authorId: userId,
     },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.CREATED,
+      entityType: AuditEntityType.COMMENT,
+      entityId: comment.id,
+      metadata: input,
+    },
+  });
+
+  return comment;
 }
 
 export async function deleteComment(userId: number, commentId: number) {
@@ -81,6 +92,16 @@ export async function deleteComment(userId: number, commentId: number) {
 
   await prisma.comment.delete({
     where: { id: commentId },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.DELETED,
+      entityType: AuditEntityType.COMMENT,
+      entityId: comment.id,
+      metadata: {},
+    },
   });
 
   return { message: "Comment deleted" };

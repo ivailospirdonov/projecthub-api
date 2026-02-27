@@ -1,12 +1,22 @@
 import { Request, Response } from "express";
 import * as organizationService from "../services/organization.services";
-import { prisma } from "../prisma";
-import crypto from "crypto";
+import {
+  AcceptInviteInput,
+  acceptInviteSchema,
+  CreateOrganizationInput,
+  createOrganizationSchema,
+  InviteBody,
+  inviteBodySchema,
+  InviteParams,
+  inviteParamsSchema,
+} from "../validators/organization.validations";
 
 export async function createOrganizationHandler(req: Request, res: Response) {
   try {
     const userId = (req as any).user.userId; //remove any;
-    const { name } = req.body;
+    const { name }: CreateOrganizationInput = createOrganizationSchema.parse(
+      req.body,
+    );
 
     const organization = await organizationService.createOrganization(
       userId,
@@ -15,7 +25,7 @@ export async function createOrganizationHandler(req: Request, res: Response) {
 
     res.status(201).json(organization);
   } catch (err) {
-    res.status(500).json({ message: "Failed to create organization" });
+    res.status(400).json({ message: "Failed to create organization" });
   }
 }
 
@@ -28,94 +38,42 @@ export async function listOrganizationsHandler(req: Request, res: Response) {
 
     res.json(organization);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch organizations" });
+    res.status(400).json({ message: "Failed to fetch organizations" });
   }
 }
 
-export async function inviteMember(req: Request, res: Response) {
-  const userId = (req as any).user.userId; //remove any;
-  const { organizationId } = req.params;
-  const { email, role } = req.body;
+export async function inviteMemberHandler(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.userId; //remove any;
+    const { organizationId }: InviteParams = inviteParamsSchema.parse(
+      req.params,
+    );
+    const { email, role }: InviteBody = inviteBodySchema.parse(req.body);
 
-  const membership = await prisma.userOrganization.findUnique({
-    where: {
-      userId_organizationId: {
-        userId,
-        organizationId: Number(organizationId),
-      },
-    },
-  });
-
-  if (
-    !membership ||
-    (membership.role !== "ADMIN" && membership.role !== "OWNER")
-  ) {
-    return res.status(403).json({ message: "Not allowed" });
-  }
-
-  const token = crypto.randomBytes(32).toString("hex");
-
-  await prisma.invitation.create({
-    data: {
+    const invitation = await organizationService.inviteMember(
+      userId,
+      organizationId,
       email,
       role,
-      organizationId: Number(organizationId),
-      token,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
-  });
+    );
 
-  return res.json({
-    message: "Invitation created",
-    invitationToken: token,
-  });
+    res.json(invitation);
+  } catch (err: any) {
+    //remove any;
+    return res.status(400).json({ message: err.message });
+  }
 }
 
-export async function acceptInvite(req: Request, res: Response) {
-  const userId = (req as any).user.userId; // remove any
-  const { token } = req.body;
+export async function acceptInviteHandler(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.userId; // remove any
+    const { token }: AcceptInviteInput = acceptInviteSchema.parse(req.body);
 
-  const invitation = await prisma.invitation.findUnique({
-    where: { token },
-  });
+    const invitation = await organizationService.acceptInvite(userId, token);
 
-  if (!invitation) {
-    return res.status(404).json({ message: "Invalid invitation" });
+    res.json(invitation);
+  } catch (err: any) {
+    //remove any;
+    return res.status(400).json({ message: err.message });
   }
-
-  if (invitation.status !== "PENDING") {
-    return res.status(400).json({ message: "Invitation already used" });
-  }
-
-  if (invitation.expiresAt < new Date()) {
-    return res.status(400).json({ message: "Invitation expired" });
-  }
-
-  const existingMembership = await prisma.userOrganization.findUnique({
-    where: {
-      userId_organizationId: {
-        userId,
-        organizationId: invitation.organizationId,
-      },
-    },
-  });
-
-  if (existingMembership) {
-    return res.status(400).json({ message: "User is already a member" });
-  }
-
-  await prisma.userOrganization.create({
-    data: {
-      userId,
-      organizationId: invitation.organizationId,
-      role: invitation.role,
-    },
-  });
-
-  await prisma.invitation.update({
-    where: { id: invitation.id },
-    data: { status: "ACCEPTED" },
-  });
-
-  return res.json({ message: "Joined organization" });
 }

@@ -1,4 +1,9 @@
-import { Prisma, TaskStatus } from "@prisma/client";
+import {
+  AuditAction,
+  AuditEntityType,
+  Prisma,
+  TaskStatus,
+} from "@prisma/client";
 import { prisma } from "../prisma";
 
 const allowedTransactions: Record<TaskStatus, TaskStatus[]> = {
@@ -36,13 +41,25 @@ export async function createTask(
     throw new Error("Access denied");
   }
 
-  return prisma.task.create({
+  const task = await prisma.task.create({
     data: {
       title,
       description,
       projectId,
     },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.CREATED,
+      entityType: AuditEntityType.TASK,
+      entityId: task.id,
+      metadata: { title, description },
+    },
+  });
+
+  return task;
 }
 
 export async function getTask(taskId: number, userId: number) {
@@ -108,10 +125,22 @@ export async function updateTask(
     throw new Error("Access denied");
   }
 
-  return prisma.task.update({
+  const updatedTask = await prisma.task.update({
     where: { id: taskId },
     data,
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.UPDATED,
+      entityType: AuditEntityType.TASK,
+      entityId: task.id,
+      metadata: data,
+    },
+  });
+
+  return updatedTask;
 }
 
 export async function deleteTask(taskId: number, userId: number) {
@@ -147,6 +176,16 @@ export async function deleteTask(taskId: number, userId: number) {
 
   await prisma.task.delete({
     where: { id: taskId },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.DELETED,
+      entityType: AuditEntityType.TASK,
+      entityId: task.id,
+      metadata: {},
+    },
   });
 
   return { message: "Task deleted" };
@@ -192,10 +231,22 @@ export async function changeTaskStatus(
     );
   }
 
-  return prisma.task.update({
+  let updatedTask = await prisma.task.update({
     where: { id: taskId },
     data: { status: newStatus },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.STATUS_CHANGED,
+      entityType: AuditEntityType.TASK,
+      entityId: task.id,
+      metadata: { newStatus },
+    },
+  });
+
+  return updatedTask;
 }
 
 export async function listTasks(

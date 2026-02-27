@@ -1,4 +1,6 @@
+import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
+import { UpdateProfileData } from "../validators/user.validation";
 
 export async function getProfile(userId: number) {
   const user = await prisma.user.findUnique({
@@ -17,14 +19,25 @@ export async function getProfile(userId: number) {
   return user;
 }
 
-export async function updateProfile(userId: number, data: any) {
+export async function updateProfile(userId: number, input: UpdateProfileData) {
   const user = await prisma.user.update({
     where: { id: userId },
-    data,
+    data: input,
     select: {
       id: true,
+      name: true,
       email: true,
       createdAt: true,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.UPDATED,
+      entityType: AuditEntityType.USER,
+      entityId: userId,
+      metadata: input,
     },
   });
 

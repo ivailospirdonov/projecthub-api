@@ -1,17 +1,17 @@
 import { Router } from "express";
 import {
-  acceptInvite,
+  acceptInviteHandler,
   createOrganizationHandler,
-  inviteMember,
+  inviteMemberHandler,
   listOrganizationsHandler,
 } from "../controllers/organization.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.post("/", authenticate, createOrganizationHandler);
-router.post("/:organizationId/invite", authenticate, inviteMember);
-router.post("/accept-invite", authenticate, acceptInvite);
 router.get("/", authenticate, listOrganizationsHandler);
+router.post("/", authenticate, createOrganizationHandler);
+router.post("/:organizationId/invite", authenticate, inviteMemberHandler);
+router.post("/accept-invite", authenticate, acceptInviteHandler);
 
 export default router;

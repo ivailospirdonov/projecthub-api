@@ -1,11 +1,23 @@
 import { Request, Response } from "express";
 import * as taskService from "../services/task.services";
-import { TaskStatus } from "@prisma/client";
+import {
+  ChangeTaskStatusInput,
+  changeTaskStatusSchema,
+  CreateTaskInput,
+  createTaskSchema,
+  ListTasksQuery,
+  listTasksQuerySchema,
+  TaskIdParam,
+  taskIdParamSchema,
+  UpdateTaskInput,
+  updateTaskSchema,
+} from "../validators/task.validations";
 
 export async function createTaskHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const { title, description, projectId } = req.body;
+    const userId = (req as any).user.userId; //remove any;
+    const { title, description, projectId }: CreateTaskInput =
+      createTaskSchema.parse(req.body);
 
     const task = await taskService.createTask(
       userId,
@@ -23,8 +35,8 @@ export async function createTaskHandler(req: Request, res: Response) {
 
 export async function getTaskHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const taskId = Number(req.params.id);
+    const userId = (req as any).user.userId; //remove any;
+    const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
 
     const task = await taskService.getTask(taskId, userId);
 
@@ -37,9 +49,10 @@ export async function getTaskHandler(req: Request, res: Response) {
 
 export async function updateTaskHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const taskId = Number(req.params.id);
-    const { title, description, assigneeId } = req.body;
+    const userId = (req as any).user.userId; //remove any;
+    const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
+    const { title, description, assigneeId }: UpdateTaskInput =
+      updateTaskSchema.parse(req.body);
 
     const updatedTask = await taskService.updateTask(userId, taskId, {
       title,
@@ -56,8 +69,8 @@ export async function updateTaskHandler(req: Request, res: Response) {
 
 export async function deleteTaskHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const taskId = Number(req.params.id);
+    const userId = (req as any).user.userId; //remove any;
+    const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
 
     const result = await taskService.deleteTask(taskId, userId);
 
@@ -70,14 +83,16 @@ export async function deleteTaskHandler(req: Request, res: Response) {
 
 export async function changeTaskStatusHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
-    const taskId = Number(req.params.id);
-    const { status } = req.body;
+    const userId = (req as any).user.userId; //remove any;
+    const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
+    const { status }: ChangeTaskStatusInput = changeTaskStatusSchema.parse(
+      req.body,
+    );
 
     const updatedTask = await taskService.changeTaskStatus(
       userId,
       taskId,
-      status as TaskStatus,
+      status,
     );
 
     return res.json(updatedTask);
@@ -89,20 +104,21 @@ export async function changeTaskStatusHandler(req: Request, res: Response) {
 
 export async function listTasksHandler(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.userId; //remove any;
 
-    const { projectId, status, assigneeId, sort, order } = req.query;
+    const { projectId, status, assigneeId, sort, order }: ListTasksQuery =
+      listTasksQuerySchema.parse(req.query);
 
     if (!projectId) {
       return res.status(400).json({ message: "projectId is required" });
     }
 
     const tasks = await taskService.listTasks(userId, {
-      projectId: Number(projectId),
-      status: status as TaskStatus,
-      assigneeId: assigneeId ? Number(assigneeId) : undefined,
-      sort: sort as "createdAt",
-      order: order as "asc" | "desc",
+      projectId,
+      status,
+      assigneeId,
+      sort,
+      order,
     });
 
     return res.json(tasks);

@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { authenticate } from "../middlewares/auth.middleware";
 import {
   getProfileHandler,
   updateProfileHandler,
 } from "../controllers/user.controller";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/me", authenticate, getProfileHandler);
-router.patch("/me", authenticate, updateProfileHandler);
+router.get("/", authenticate, getProfileHandler);
+router.patch("/", authenticate, updateProfileHandler);
 
 export default router;

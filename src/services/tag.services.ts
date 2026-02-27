@@ -1,3 +1,4 @@
+import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
 
 export async function createTag(
@@ -15,12 +16,24 @@ export async function createTag(
     throw new Error("Access denied");
   }
 
-  return prisma.tag.create({
+  const tag = await prisma.tag.create({
     data: {
       name,
       organizationId,
     },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.CREATED,
+      entityType: AuditEntityType.TAG,
+      entityId: tag.id,
+      metadata: { name },
+    },
+  });
+
+  return tag;
 }
 
 export async function listTags(userId: number, organizationId: number) {
@@ -76,12 +89,24 @@ export async function attachTagToTask(
     throw new Error("Access denied");
   }
 
-  return prisma.taskTag.create({
+  let taskTag = await prisma.taskTag.create({
     data: {
       taskId,
       tagId,
     },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.ATTACHED,
+      entityType: AuditEntityType.TAG,
+      entityId: tag.id,
+      metadata: { taskId },
+    },
+  });
+
+  return taskTag;
 }
 
 export async function detachTagFromTask(
@@ -119,7 +144,7 @@ export async function detachTagFromTask(
     throw new Error("Access denied");
   }
 
-  return prisma.taskTag.delete({
+  await prisma.taskTag.delete({
     where: {
       taskId_tagId: {
         taskId,
@@ -127,4 +152,16 @@ export async function detachTagFromTask(
       },
     },
   });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.DETACHED,
+      entityType: AuditEntityType.TAG,
+      entityId: tag.id,
+      metadata: { taskId },
+    },
+  });
+
+  return { message: "Tag detached" };
 }

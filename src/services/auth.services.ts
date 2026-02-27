@@ -1,7 +1,9 @@
+import { AuditAction, AuditEntityType } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { jwtConfig } from "../config/jwt.config";
 import { prisma } from "../prisma";
+import { LoginInput, SignupInput } from "../validators/auth.validations";
 
 const SALT_ROUNDS = 10;
 
@@ -27,7 +29,7 @@ export async function comparePasswords(password: string, hashed: string) {
   return bcrypt.compare(password, hashed);
 }
 
-export async function signup(email: string, password: string) {
+export async function signup({ email, password }: SignupInput) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
   if (existingUser) {
@@ -40,6 +42,16 @@ export async function signup(email: string, password: string) {
     data: {
       email,
       password: hashedPassword,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: AuditAction.CREATED,
+      entityType: AuditEntityType.USER,
+      entityId: user.id,
+      metadata: { email },
     },
   });
 
@@ -60,7 +72,7 @@ export async function signup(email: string, password: string) {
   };
 }
 
-export async function login(email: string, password: string) {
+export async function login({ email, password }: LoginInput) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {

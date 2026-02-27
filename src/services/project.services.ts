@@ -1,3 +1,4 @@
+import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
 
 export async function createProject(
@@ -24,6 +25,16 @@ export async function createProject(
       name,
       description,
       organizationId,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.CREATED,
+      entityType: AuditEntityType.PROJECT,
+      entityId: project.id,
+      metadata: { name, description },
     },
   });
 
@@ -94,6 +105,16 @@ export async function updateProject(
     data,
   });
 
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.UPDATED,
+      entityType: AuditEntityType.PROJECT,
+      entityId: project.id,
+      metadata: data,
+    },
+  });
+
   return updateProject;
 }
 
@@ -128,6 +149,16 @@ export async function deleteProject(projectId: number, userId: number) {
   await prisma.project.delete({
     where: {
       id: projectId,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: AuditAction.DELETED,
+      entityType: AuditEntityType.PROJECT,
+      entityId: project.id,
+      metadata: {},
     },
   });
 
