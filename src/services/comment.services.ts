@@ -10,8 +10,12 @@ export async function createComment(userId: number, input: CreateCommentInput) {
     where: {
       id: taskId,
     },
-    include: {
-      project: true,
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
 
@@ -32,7 +36,7 @@ export async function createComment(userId: number, input: CreateCommentInput) {
     throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
-  let comment = await prisma.comment.create({
+  const comment = await prisma.comment.create({
     data: {
       content,
       taskId,
@@ -58,9 +62,10 @@ export async function deleteComment(userId: number, commentId: number) {
     where: {
       id: commentId,
     },
-    include: {
+    select: {
+      authorId: true,
       task: {
-        include: {
+        select: {
           project: true,
         },
       },
@@ -77,6 +82,9 @@ export async function deleteComment(userId: number, commentId: number) {
         userId,
         organizationId: comment.task.project.organizationId,
       },
+    },
+    select: {
+      role: true,
     },
   });
 
@@ -101,7 +109,7 @@ export async function deleteComment(userId: number, commentId: number) {
       userId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.COMMENT,
-      entityId: comment.id,
+      entityId: commentId,
       metadata: {},
     },
   });

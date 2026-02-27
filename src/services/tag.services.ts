@@ -12,6 +12,7 @@ export async function createTag(
     where: {
       userId_organizationId: { userId, organizationId },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -43,6 +44,7 @@ export async function listTags(userId: number, organizationId: number) {
     where: {
       userId_organizationId: { userId, organizationId },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -63,7 +65,13 @@ export async function attachTagToTask(
 ) {
   const task = await prisma.task.findUnique({
     where: { id: taskId },
-    include: { project: true },
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
+    },
   });
 
   if (!task) {
@@ -72,6 +80,7 @@ export async function attachTagToTask(
 
   const tag = await prisma.tag.findUnique({
     where: { id: tagId },
+    select: {},
   });
 
   if (!tag) {
@@ -85,6 +94,7 @@ export async function attachTagToTask(
         organizationId: task.project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -103,7 +113,7 @@ export async function attachTagToTask(
       userId,
       action: AuditAction.ATTACHED,
       entityType: AuditEntityType.TAG,
-      entityId: tag.id,
+      entityId: tagId,
       metadata: { taskId },
     },
   });
@@ -118,7 +128,13 @@ export async function detachTagFromTask(
 ) {
   const task = await prisma.task.findUnique({
     where: { id: taskId },
-    include: { project: true },
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
+    },
   });
 
   if (!task) {
@@ -127,6 +143,7 @@ export async function detachTagFromTask(
 
   const tag = await prisma.tag.findUnique({
     where: { id: tagId },
+    select: {},
   });
 
   if (!tag) {
@@ -140,6 +157,7 @@ export async function detachTagFromTask(
         organizationId: task.project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -160,7 +178,7 @@ export async function detachTagFromTask(
       userId,
       action: AuditAction.DETACHED,
       entityType: AuditEntityType.TAG,
-      entityId: tag.id,
+      entityId: tagId,
       metadata: { taskId },
     },
   });

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import * as projectService from "../services/project.services";
 import {
-  CreateProjectInput,
-  createProjectSchema,
+  CreateProjectWithTasksInput,
+  createProjectWithTasksSchema,
   ListProjectsParams,
   listProjectsParamsSchema,
   ListProjectsQuery,
@@ -20,14 +20,21 @@ export async function createProjectHandler(
 ) {
   try {
     const userId = (req as any).user.userId; //remove any;
-    const { name, description, organizationId }: CreateProjectInput =
-      createProjectSchema.parse(req.body);
+    const {
+      name,
+      description,
+      organizationId,
+      tasks,
+    }: CreateProjectWithTasksInput = createProjectWithTasksSchema.parse(
+      req.body,
+    );
 
     const project = await projectService.createProject(
       userId,
       name,
       description,
       organizationId,
+      tasks,
     );
     return res.status(201).json(project);
   } catch (error) {

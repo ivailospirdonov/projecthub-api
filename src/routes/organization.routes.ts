@@ -11,7 +11,7 @@ const router = Router();
 
 router.get("/", authenticate, listOrganizationsHandler);
 router.post("/", authenticate, createOrganizationHandler);
-router.post("/:organizationId/invite", authenticate, inviteMemberHandler);
+router.post("/slug/invite", authenticate, inviteMemberHandler);
 router.post("/accept-invite", authenticate, acceptInviteHandler);
 
 export default router;

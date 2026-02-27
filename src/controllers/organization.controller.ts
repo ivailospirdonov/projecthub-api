@@ -57,14 +57,12 @@ export async function inviteMemberHandler(
 ) {
   try {
     const userId = (req as any).user.userId; //remove any;
-    const { organizationId }: InviteParams = inviteParamsSchema.parse(
-      req.params,
-    );
+    const { slug }: InviteParams = inviteParamsSchema.parse(req.params);
     const { email, role }: InviteBody = inviteBodySchema.parse(req.body);
 
     const invitation = await organizationService.inviteMember(
       userId,
-      organizationId,
+      slug,
       email,
       role,
     );

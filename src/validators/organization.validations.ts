@@ -9,16 +9,19 @@ export type AcceptInviteInput = z.infer<typeof acceptInviteSchema>;
 export const createOrganizationSchema = z.object({
   name: z
     .string({ error: "Organization name is required" })
-    .min(1, { error: "Organization name cannot be empty" })
-    .max(100, { error: "Organization name cannot exceed 100 characters" }),
+    .min(2, { error: "Organization name must be at least 2 characters" })
+    .max(50, { error: "Organization name cannot exceed 50 characters" }),
 });
 
 export const inviteParamsSchema = z.object({
-  organizationId: z.string().transform((val) => {
-    const parsed = Number(val);
-    if (isNaN(parsed)) throw new Error("organizationId must be a number");
-    return parsed;
-  }),
+  slug: z
+    .string()
+    .min(2, "Slug must be at least 2 characters")
+    .max(50, "Slug must be at most 50 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug can contain only lowercase letters, numbers and hyphens",
+    ),
 });
 
 export const inviteBodySchema = z.object({

@@ -32,7 +32,10 @@ export async function comparePasswords(password: string, hashed: string) {
 }
 
 export async function signup({ email, password }: SignupInput) {
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+    select: {},
+  });
 
   if (!existingUser) {
     throw new AppError(
@@ -48,6 +51,9 @@ export async function signup({ email, password }: SignupInput) {
     data: {
       email,
       password: hashedPassword,
+    },
+    select: {
+      id: true,
     },
   });
 
@@ -79,7 +85,10 @@ export async function signup({ email, password }: SignupInput) {
 }
 
 export async function login({ email, password }: LoginInput) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, password: true },
+  });
 
   if (!user) {
     throw new AppError(

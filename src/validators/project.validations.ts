@@ -1,27 +1,43 @@
 import { z } from "zod";
 
-export type CreateProjectInput = z.infer<typeof createProjectSchema>;
+export type CreateProjectWithTasksInput = z.infer<
+  typeof createProjectWithTasksSchema
+>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ProjectIdParam = z.infer<typeof projectIdParamSchema>;
 export type ListProjectsParams = z.infer<typeof listProjectsParamsSchema>;
 export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
 
-export const createProjectSchema = z.object({
+export const createProjectWithTasksSchema = z.object({
   name: z
     .string({ error: "Project name is required" })
     .min(1, { error: "Project name cannot be empty" })
     .max(100, { error: "Project name too long" }),
 
   description: z.string().max(1000, "Description too long").optional(),
-
   organizationId: z.number({ error: "organizationId is required" }),
+  tasks: z
+    .array(
+      z.object({
+        title: z
+          .string({ error: "Title is required" })
+          .min(1, { error: "Title cannot be empty" })
+          .max(200, { error: "Title too long" }),
+
+        description: z
+          .string()
+          .max(2000, { error: "Description too long" })
+          .optional(),
+      }),
+    )
+    .optional(),
 });
 
 export const updateProjectSchema = z.object({
   name: z
     .string()
     .min(1, { error: "Project name cannot be empty" })
-    .max(100)
+    .max(100, { error: "Project name too long" })
     .optional(),
 
   description: z.string().max(1000).optional(),

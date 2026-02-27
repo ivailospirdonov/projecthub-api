@@ -61,6 +61,7 @@ model User {
 model Organization {
   id        Int      @id @default(autoincrement())
   name      String
+  slug      String   @unique
   createdAt DateTime @default(now())
 
   users       UserOrganization[]
@@ -76,9 +77,12 @@ model Project {
   createdAt   DateTime @default(now())
 
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   tasks Task[]
+
+  @@index([organizationId])
+  @@index([createdAt])
 }
 
 model Task {
@@ -89,13 +93,18 @@ model Task {
   createdAt   DateTime   @default(now())
 
   projectId Int
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   assigneeId Int?
   assignee   User? @relation(fields: [assigneeId], references: [id])
 
   comments Comment[]
   tags     TaskTag[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([assigneeId])
 }
 
 model Comment {
@@ -104,7 +113,7 @@ model Comment {
   createdAt DateTime @default(now())
 
   taskId Int
-  task   Task @relation(fields: [taskId], references: [id])
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   authorId Int
   author   User @relation(fields: [authorId], references: [id])
@@ -126,6 +135,7 @@ model AuditLog {
 
   @@index([entityId])
   @@index([createdAt])
+  @@index([userId])
 }
 
 model RefreshToken {
@@ -148,7 +158,7 @@ model Invitation {
   expiresAt      DateTime
   createdAt      DateTime         @default(now())
 
-  organization Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model UserOrganization {
@@ -167,7 +177,7 @@ model Tag {
   name String @unique
 
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   tasks TaskTag[]
 

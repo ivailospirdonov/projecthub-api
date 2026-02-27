@@ -8,39 +8,53 @@ export async function createProject(
   name: string,
   description: string | undefined,
   organizationId: number,
+  tasks?: { title: string; description?: string }[],
 ) {
-  const membership = await prisma.userOrganization.findUnique({
-    where: {
-      userId_organizationId: {
-        userId,
+  return prisma.$transaction(async (tx) => {
+    const membership = await tx.userOrganization.findUnique({
+      where: {
+        userId_organizationId: {
+          userId,
+          organizationId,
+        },
+      },
+      select: {},
+    });
+
+    if (!membership) {
+      throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    }
+
+    const project = await tx.project.create({
+      data: {
+        name,
+        description,
         organizationId,
       },
-    },
+    });
+
+    if (tasks?.length) {
+      await tx.task.createMany({
+        data: tasks.map((t) => ({
+          title: t.title,
+          description: t.description,
+          projectId: project.id,
+        })),
+      });
+    }
+
+    await tx.auditLog.create({
+      data: {
+        userId,
+        action: AuditAction.CREATED,
+        entityType: AuditEntityType.PROJECT,
+        entityId: project.id,
+        metadata: { name, description, withTasks: !!tasks?.length },
+      },
+    });
+
+    return project;
   });
-
-  if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
-  }
-
-  const project = await prisma.project.create({
-    data: {
-      name,
-      description,
-      organizationId,
-    },
-  });
-
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action: AuditAction.CREATED,
-      entityType: AuditEntityType.PROJECT,
-      entityId: project.id,
-      metadata: { name, description },
-    },
-  });
-
-  return project;
 }
 
 export async function getProject(projectId: number, userId: number) {
@@ -61,6 +75,7 @@ export async function getProject(projectId: number, userId: number) {
         organizationId: project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -79,6 +94,9 @@ export async function updateProject(
     where: {
       id: projectId,
     },
+    select: {
+      organizationId: true,
+    },
   });
 
   if (!project) {
@@ -91,6 +109,9 @@ export async function updateProject(
         userId,
         organizationId: project.organizationId,
       },
+    },
+    select: {
+      role: true,
     },
   });
 
@@ -112,7 +133,7 @@ export async function updateProject(
       userId,
       action: AuditAction.UPDATED,
       entityType: AuditEntityType.PROJECT,
-      entityId: project.id,
+      entityId: projectId,
       metadata: data,
     },
   });
@@ -124,6 +145,9 @@ export async function deleteProject(projectId: number, userId: number) {
   const project = await prisma.project.findUnique({
     where: {
       id: projectId,
+    },
+    select: {
+      organizationId: true,
     },
   });
 
@@ -137,6 +161,9 @@ export async function deleteProject(projectId: number, userId: number) {
         userId,
         organizationId: project.organizationId,
       },
+    },
+    select: {
+      role: true,
     },
   });
 
@@ -159,7 +186,7 @@ export async function deleteProject(projectId: number, userId: number) {
       userId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.PROJECT,
-      entityId: project.id,
+      entityId: projectId,
       metadata: {},
     },
   });
@@ -180,6 +207,7 @@ export async function listProjects(
         organizationId: organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {

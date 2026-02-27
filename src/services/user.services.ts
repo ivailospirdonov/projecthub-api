@@ -9,6 +9,7 @@ export async function getProfile(userId: number) {
     where: { id: userId },
     select: {
       id: true,
+      name: true,
       email: true,
       createdAt: true,
     },

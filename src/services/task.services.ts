@@ -24,6 +24,9 @@ export async function createTask(
     where: {
       id: projectId,
     },
+    select: {
+      organizationId: true,
+    },
   });
 
   if (!project) {
@@ -37,6 +40,7 @@ export async function createTask(
         organizationId: project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -69,8 +73,12 @@ export async function getTask(taskId: number, userId: number) {
     where: {
       id: taskId,
     },
-    include: {
-      project: true,
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
 
@@ -85,6 +93,7 @@ export async function getTask(taskId: number, userId: number) {
         organizationId: task.project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -107,7 +116,13 @@ export async function updateTask(
     where: {
       id: taskId,
     },
-    include: { project: true },
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
+    },
   });
 
   if (!task) {
@@ -121,6 +136,7 @@ export async function updateTask(
         organizationId: task.project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -137,7 +153,7 @@ export async function updateTask(
       userId,
       action: AuditAction.UPDATED,
       entityType: AuditEntityType.TASK,
-      entityId: task.id,
+      entityId: taskId,
       metadata: data,
     },
   });
@@ -150,8 +166,12 @@ export async function deleteTask(taskId: number, userId: number) {
     where: {
       id: taskId,
     },
-    include: {
-      project: true,
+    select: {
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
 
@@ -165,6 +185,9 @@ export async function deleteTask(taskId: number, userId: number) {
         userId,
         organizationId: task.project.organizationId,
       },
+    },
+    select: {
+      role: true,
     },
   });
 
@@ -185,7 +208,7 @@ export async function deleteTask(taskId: number, userId: number) {
       userId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.TASK,
-      entityId: task.id,
+      entityId: taskId,
       metadata: {},
     },
   });
@@ -202,8 +225,13 @@ export async function changeTaskStatus(
     where: {
       id: taskId,
     },
-    include: {
-      project: true,
+    select: {
+      status: true,
+      project: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
 
@@ -218,6 +246,7 @@ export async function changeTaskStatus(
         organizationId: task.project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
@@ -245,7 +274,7 @@ export async function changeTaskStatus(
       userId,
       action: AuditAction.STATUS_CHANGED,
       entityType: AuditEntityType.TASK,
-      entityId: task.id,
+      entityId: taskId,
       metadata: { newStatus },
     },
   });
@@ -267,6 +296,9 @@ export async function listTasks(
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
+    select: {
+      organizationId: true,
+    },
   });
 
   if (!project) {
@@ -280,6 +312,7 @@ export async function listTasks(
         organizationId: project.organizationId,
       },
     },
+    select: {},
   });
 
   if (!membership) {
