@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { jwtConfig } from "../config/jwt.config";
 import { prisma } from "../prisma";
 import { LoginInput, SignupInput } from "../validators/auth.validations";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 const SALT_ROUNDS = 10;
 
@@ -32,8 +34,12 @@ export async function comparePasswords(password: string, hashed: string) {
 export async function signup({ email, password }: SignupInput) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
-  if (existingUser) {
-    throw new Error("User already exists");
+  if (!existingUser) {
+    throw new AppError(
+      "User already exists",
+      409,
+      ErrorCodes.USER_ALREADY_EXISTS,
+    );
   }
 
   const hashedPassword = await hashPassword(password);
@@ -76,13 +82,21 @@ export async function login({ email, password }: LoginInput) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new AppError(
+      "Invalid credentials",
+      401,
+      ErrorCodes.INVALID_CREDENTIALS,
+    );
   }
 
   const isPasswordValid = await comparePasswords(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new AppError(
+      "Invalid credentials",
+      401,
+      ErrorCodes.INVALID_CREDENTIALS,
+    );
   }
 
   await prisma.refreshToken.deleteMany({ where: { userId: user.id } });

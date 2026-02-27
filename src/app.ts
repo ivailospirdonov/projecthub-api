@@ -1,6 +1,5 @@
 import cors from "cors";
 import express from "express";
-import { errorHandler } from "./middlewares/errorHandler";
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
 import taskRouter from "./routes/task.routes";
@@ -9,10 +8,10 @@ import auditRouter from "./routes/audit.routes";
 import commentRouter from "./routes/comment.routes";
 import projectRouter from "./routes/project.routes";
 import organizationRouter from "./routes/organization.routes";
+import { errorHandler } from "./middlewares/error.middleware";
 
 export const app = express();
 
-app.use(errorHandler);
 app.use(cors());
 app.use(express.json());
 
@@ -24,5 +23,7 @@ app.use("/api/v1/audit", auditRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/organizations", organizationRouter);
+
+app.use(errorHandler);
 
 export default app;

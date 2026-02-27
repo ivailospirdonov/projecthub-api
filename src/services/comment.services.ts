@@ -1,6 +1,8 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
 import { CreateCommentInput } from "../validators/comment.validations";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 export async function createComment(userId: number, input: CreateCommentInput) {
   const { taskId, content } = input;
@@ -14,7 +16,7 @@ export async function createComment(userId: number, input: CreateCommentInput) {
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -27,7 +29,7 @@ export async function createComment(userId: number, input: CreateCommentInput) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   let comment = await prisma.comment.create({
@@ -66,7 +68,7 @@ export async function deleteComment(userId: number, commentId: number) {
   });
 
   if (!comment) {
-    throw new Error("Comment not found");
+    throw new AppError("Comment not found", 404, ErrorCodes.COMMENT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -79,7 +81,7 @@ export async function deleteComment(userId: number, commentId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   if (
@@ -87,7 +89,7 @@ export async function deleteComment(userId: number, commentId: number) {
     membership.role !== "ADMIN" &&
     membership.role !== "OWNER"
   ) {
-    throw new Error("Insufficient permissions");
+    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.comment.delete({

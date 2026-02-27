@@ -1,5 +1,7 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 export async function createTag(
   userId: number,
@@ -13,7 +15,7 @@ export async function createTag(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const tag = await prisma.tag.create({
@@ -44,7 +46,7 @@ export async function listTags(userId: number, organizationId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   return prisma.tag.findMany({
@@ -65,7 +67,7 @@ export async function attachTagToTask(
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const tag = await prisma.tag.findUnique({
@@ -73,7 +75,7 @@ export async function attachTagToTask(
   });
 
   if (!tag) {
-    throw new Error("Tag not found");
+    throw new AppError("Tag not found", 404, ErrorCodes.TAG_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -86,7 +88,7 @@ export async function attachTagToTask(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   let taskTag = await prisma.taskTag.create({
@@ -120,7 +122,7 @@ export async function detachTagFromTask(
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const tag = await prisma.tag.findUnique({
@@ -128,7 +130,7 @@ export async function detachTagFromTask(
   });
 
   if (!tag) {
-    throw new Error("Tag not found");
+    throw new AppError("Tag not found", 404, ErrorCodes.TAG_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -141,7 +143,7 @@ export async function detachTagFromTask(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.taskTag.delete({

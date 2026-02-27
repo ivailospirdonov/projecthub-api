@@ -18,10 +18,13 @@ export const taskIdParamSchema = z.object({
 export const createTaskSchema = z.object({
   title: z
     .string({ error: "Title is required" })
-    .min(1, "Title cannot be empty")
-    .max(200, "Title too long"),
+    .min(1, { error: "Title cannot be empty" })
+    .max(200, { error: "Title too long" }),
 
-  description: z.string().max(2000, "Description too long").optional(),
+  description: z
+    .string()
+    .max(2000, { error: "Description too long" })
+    .optional(),
 
   projectId: z.number({
     error: "projectId is required",
@@ -29,7 +32,11 @@ export const createTaskSchema = z.object({
 });
 
 export const updateTaskSchema = z.object({
-  title: z.string().min(1, "Title cannot be empty").max(200).optional(),
+  title: z
+    .string()
+    .min(1, { error: "Title cannot be empty" })
+    .max(200)
+    .optional(),
 
   description: z.string().max(2000).optional(),
 

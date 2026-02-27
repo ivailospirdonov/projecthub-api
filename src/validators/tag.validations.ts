@@ -11,8 +11,8 @@ export const createTagSchema = z.object({
 
   name: z
     .string({ error: "Tag name is required" })
-    .min(1, "Tag name cannot be empty")
-    .max(50, "Tag name too long"),
+    .min(1, { error: "Tag name cannot be empty" })
+    .max(50, { error: "Tag name too long" }),
 });
 
 export const listTagsQuerySchema = z.object({

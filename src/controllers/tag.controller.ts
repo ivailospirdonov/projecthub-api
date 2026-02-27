@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as tagService from "../services/tag.services";
 import {
   CreateTagInput,
@@ -9,7 +9,11 @@ import {
   tagTaskSchema,
 } from "../validators/tag.validations";
 
-export async function createTagHandler(req: Request, res: Response) {
+export async function createTagHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { organizationId, name }: CreateTagInput = createTagSchema.parse(
@@ -19,13 +23,16 @@ export async function createTagHandler(req: Request, res: Response) {
     const tag = await tagService.createTag(userId, organizationId, name);
 
     res.status(201).json(tag);
-  } catch (err: any) {
-    //remove any;
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function listTagsHandler(req: Request, res: Response) {
+export async function listTagsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { organizationId }: ListTagsQuery = listTagsQuerySchema.parse(
@@ -41,13 +48,16 @@ export async function listTagsHandler(req: Request, res: Response) {
     const tags = await tagService.listTags(userId, Number(organizationId));
 
     res.json(tags);
-  } catch (err: any) {
-    //remove any;
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function attachTagHandler(req: Request, res: Response) {
+export async function attachTagHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { taskId, tagId }: TagTaskInput = tagTaskSchema.parse(req.body);
@@ -55,13 +65,16 @@ export async function attachTagHandler(req: Request, res: Response) {
     const result = await tagService.attachTagToTask(userId, taskId, tagId);
 
     res.status(201).json(result);
-  } catch (err: any) {
-    //remove any;
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function detachTagHandler(req: Request, res: Response) {
+export async function detachTagHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { taskId, tagId }: TagTaskInput = tagTaskSchema.parse(req.body);
@@ -69,8 +82,7 @@ export async function detachTagHandler(req: Request, res: Response) {
     const result = await tagService.detachTagFromTask(userId, taskId, tagId);
 
     res.status(201).json(result);
-  } catch (err: any) {
-    //remove any;
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }

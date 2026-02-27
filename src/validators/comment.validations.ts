@@ -7,8 +7,8 @@ export const createCommentSchema = z.object({
   taskId: z.number({ error: "taskId is required" }),
   content: z
     .string({ error: "Content is required" })
-    .min(1, { message: "Content cannot be empty" })
-    .max(500, { message: "Content cannot exceed 500 characters" }),
+    .min(1, { error: "Content cannot be empty" })
+    .max(500, { error: "Content cannot exceed 500 characters" }),
 });
 
 export const deleteCommentSchema = z.object({

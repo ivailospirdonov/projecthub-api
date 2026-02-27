@@ -1,6 +1,8 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
 import { UpdateProfileData } from "../validators/user.validation";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 export async function getProfile(userId: number) {
   const user = await prisma.user.findUnique({
@@ -13,7 +15,7 @@ export async function getProfile(userId: number) {
   });
 
   if (!user) {
-    throw new Error("User not found!");
+    throw new AppError("User not found", 404, ErrorCodes.USER_NOT_FOUND);
   }
 
   return user;

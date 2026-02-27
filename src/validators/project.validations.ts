@@ -9,8 +9,8 @@ export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
 export const createProjectSchema = z.object({
   name: z
     .string({ error: "Project name is required" })
-    .min(1, "Project name cannot be empty")
-    .max(100, "Project name too long"),
+    .min(1, { error: "Project name cannot be empty" })
+    .max(100, { error: "Project name too long" }),
 
   description: z.string().max(1000, "Description too long").optional(),
 
@@ -18,7 +18,11 @@ export const createProjectSchema = z.object({
 });
 
 export const updateProjectSchema = z.object({
-  name: z.string().min(1, "Project name cannot be empty").max(100).optional(),
+  name: z
+    .string()
+    .min(1, { error: "Project name cannot be empty" })
+    .max(100)
+    .optional(),
 
   description: z.string().max(1000).optional(),
 });

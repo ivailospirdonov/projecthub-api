@@ -1,5 +1,7 @@
 import { AuditAction, AuditEntityType, OrganizationRole } from "@prisma/client";
 import crypto from "crypto";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 import { prisma } from "../prisma";
 
 export async function createOrganization(userId: number, name: string) {
@@ -59,7 +61,7 @@ export async function inviteMember(
     !membership ||
     (membership.role !== "ADMIN" && membership.role !== "OWNER")
   ) {
-    throw new Error("Not allowed");
+    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
   }
 
   const token = crypto.randomBytes(32).toString("hex");
@@ -93,15 +95,27 @@ export async function acceptInvite(userId: number, token: string) {
   });
 
   if (!invitation) {
-    throw new Error("Invalid invitation");
+    throw new AppError(
+      "Invitation not found",
+      404,
+      ErrorCodes.INVITATION_NOT_FOUND,
+    );
   }
 
   if (invitation.status !== "PENDING") {
-    throw new Error("Invitation already used");
+    throw new AppError(
+      "Invitation already used",
+      409,
+      ErrorCodes.INVITATION_ALREADY_USED,
+    );
   }
 
   if (invitation.expiresAt < new Date()) {
-    throw new Error("Invitation expired");
+    throw new AppError(
+      "Invitation expired",
+      410,
+      ErrorCodes.INVITATION_EXPIRED,
+    );
   }
 
   const existingMembership = await prisma.userOrganization.findUnique({
@@ -114,7 +128,11 @@ export async function acceptInvite(userId: number, token: string) {
   });
 
   if (existingMembership) {
-    throw new Error("User is already a member");
+    throw new AppError(
+      "User is already a member",
+      409,
+      ErrorCodes.ALREADY_MEMBER,
+    );
   }
 
   await prisma.userOrganization.create({

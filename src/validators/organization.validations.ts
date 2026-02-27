@@ -9,8 +9,8 @@ export type AcceptInviteInput = z.infer<typeof acceptInviteSchema>;
 export const createOrganizationSchema = z.object({
   name: z
     .string({ error: "Organization name is required" })
-    .min(1, { message: "Organization name cannot be empty" })
-    .max(100, { message: "Organization name cannot exceed 100 characters" }),
+    .min(1, { error: "Organization name cannot be empty" })
+    .max(100, { error: "Organization name cannot exceed 100 characters" }),
 });
 
 export const inviteParamsSchema = z.object({
@@ -22,7 +22,7 @@ export const inviteParamsSchema = z.object({
 });
 
 export const inviteBodySchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ error: "Invalid email address" }),
   role: z.nativeEnum(OrganizationRole),
 });
 

@@ -1,5 +1,7 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
 import { prisma } from "../prisma";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 export async function createProject(
   userId: number,
@@ -17,7 +19,7 @@ export async function createProject(
   });
 
   if (!membership) {
-    throw new Error("Not a member of this organization");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const project = await prisma.project.create({
@@ -49,7 +51,7 @@ export async function getProject(projectId: number, userId: number) {
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404, ErrorCodes.PROJECT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -62,7 +64,7 @@ export async function getProject(projectId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   return project;
@@ -80,7 +82,7 @@ export async function updateProject(
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404, ErrorCodes.PROJECT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -93,11 +95,11 @@ export async function updateProject(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "ADMIN" && membership.role !== "OWNER") {
-    throw new Error("Insufficient role");
+    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
   }
 
   const updateProject = await prisma.project.update({
@@ -126,7 +128,7 @@ export async function deleteProject(projectId: number, userId: number) {
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404, ErrorCodes.PROJECT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -139,11 +141,11 @@ export async function deleteProject(projectId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "ADMIN" && membership.role !== "OWNER") {
-    throw new Error("Insufficient role");
+    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.project.delete({
@@ -181,7 +183,7 @@ export async function listProjects(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const projects = await prisma.project.findMany({

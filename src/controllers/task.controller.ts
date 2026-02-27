@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as taskService from "../services/task.services";
 import {
   ChangeTaskStatusInput,
@@ -13,7 +13,11 @@ import {
   updateTaskSchema,
 } from "../validators/task.validations";
 
-export async function createTaskHandler(req: Request, res: Response) {
+export async function createTaskHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { title, description, projectId }: CreateTaskInput =
@@ -27,13 +31,16 @@ export async function createTaskHandler(req: Request, res: Response) {
     );
 
     return res.status(201).json(task);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function getTaskHandler(req: Request, res: Response) {
+export async function getTaskHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
@@ -41,13 +48,16 @@ export async function getTaskHandler(req: Request, res: Response) {
     const task = await taskService.getTask(taskId, userId);
 
     return res.json(task);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function updateTaskHandler(req: Request, res: Response) {
+export async function updateTaskHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
@@ -61,13 +71,16 @@ export async function updateTaskHandler(req: Request, res: Response) {
     });
 
     return res.json(updatedTask);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function deleteTaskHandler(req: Request, res: Response) {
+export async function deleteTaskHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
@@ -75,13 +88,16 @@ export async function deleteTaskHandler(req: Request, res: Response) {
     const result = await taskService.deleteTask(taskId, userId);
 
     return res.json(result);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function changeTaskStatusHandler(req: Request, res: Response) {
+export async function changeTaskStatusHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
@@ -96,13 +112,16 @@ export async function changeTaskStatusHandler(req: Request, res: Response) {
     );
 
     return res.json(updatedTask);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function listTasksHandler(req: Request, res: Response) {
+export async function listTasksHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const userId = (req as any).user.userId; //remove any;
 
@@ -122,8 +141,7 @@ export async function listTasksHandler(req: Request, res: Response) {
     });
 
     return res.json(tasks);
-  } catch (err: any) {
-    //remove any
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }

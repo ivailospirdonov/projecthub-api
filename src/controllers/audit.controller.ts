@@ -1,19 +1,22 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as auditService from "../services/audit.services";
 import {
   ListAuditInput,
   listAuditSchema,
 } from "../validators/audit.validations";
 
-export async function listAuditLogsHandler(req: Request, res: Response) {
+export async function listAuditLogsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const filters: ListAuditInput = listAuditSchema.parse(req.query);
 
     const logs = await auditService.listAuditLogs(filters);
 
     res.json(logs);
-  } catch (err: any) {
-    //remove any;
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }

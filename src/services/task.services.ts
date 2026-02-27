@@ -5,6 +5,8 @@ import {
   TaskStatus,
 } from "@prisma/client";
 import { prisma } from "../prisma";
+import { AppError } from "../errors/app-error";
+import { ErrorCodes } from "../errors/error-codes";
 
 const allowedTransactions: Record<TaskStatus, TaskStatus[]> = {
   TODO: ["IN_PROGRESS"],
@@ -25,7 +27,7 @@ export async function createTask(
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404, ErrorCodes.PROJECT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -38,7 +40,7 @@ export async function createTask(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const task = await prisma.task.create({
@@ -73,7 +75,7 @@ export async function getTask(taskId: number, userId: number) {
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -86,7 +88,7 @@ export async function getTask(taskId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   return task;
@@ -109,7 +111,7 @@ export async function updateTask(
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -122,7 +124,7 @@ export async function updateTask(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const updatedTask = await prisma.task.update({
@@ -154,7 +156,7 @@ export async function deleteTask(taskId: number, userId: number) {
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -167,11 +169,11 @@ export async function deleteTask(taskId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "OWNER" && membership.role !== "ADMIN") {
-    throw new Error("Insufficient permissions");
+    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.task.delete({
@@ -206,7 +208,7 @@ export async function changeTaskStatus(
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404, ErrorCodes.TASK_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -219,15 +221,17 @@ export async function changeTaskStatus(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const currentStatus = task.status;
   const allowed = allowedTransactions[currentStatus];
 
   if (!allowed.includes(newStatus)) {
-    throw new Error(
+    throw new AppError(
       `Invalid status transition from ${currentStatus} to ${newStatus}`,
+      400,
+      ErrorCodes.INVALID_STATUS_TRANSITION,
     );
   }
 
@@ -266,7 +270,7 @@ export async function listTasks(
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404, ErrorCodes.PROJECT_NOT_FOUND);
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -279,7 +283,7 @@ export async function listTasks(
   });
 
   if (!membership) {
-    throw new Error("Access denied");
+    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
   }
 
   const where: Prisma.TaskWhereInput = {
