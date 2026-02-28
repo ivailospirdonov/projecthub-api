@@ -1,4 +1,4 @@
-import { prisma } from "../prisma";
+import { prisma } from "../utils/prisma";
 import { ListAuditInput } from "../validators/audit.validations";
 
 export async function listAuditLogs(filters: ListAuditInput) {

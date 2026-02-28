@@ -4,7 +4,7 @@ import {
   Prisma,
   TaskStatus,
 } from "@prisma/client";
-import { prisma } from "../prisma";
+import { prisma } from "../utils/prisma";
 import { AppError } from "../errors/app-error";
 import { ErrorCodes } from "../errors/error-codes";
 

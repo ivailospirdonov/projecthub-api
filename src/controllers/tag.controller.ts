@@ -22,6 +22,7 @@ export async function createTagHandler(
 
     const tag = await tagService.createTag(userId, organizationId, name);
 
+    req.log.info({ tagId: tag.id }, "Tag created successfully");
     res.status(201).json(tag);
   } catch (error) {
     next(error);
@@ -64,6 +65,7 @@ export async function attachTagHandler(
 
     const result = await tagService.attachTagToTask(userId, taskId, tagId);
 
+    req.log.info({ tagId, taskId }, "Tag attached successfully");
     res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -81,6 +83,7 @@ export async function detachTagHandler(
 
     const result = await tagService.detachTagFromTask(userId, taskId, tagId);
 
+    req.log.info({ tagId, taskId }, "Tag detached successfully");
     res.status(201).json(result);
   } catch (error) {
     next(error);

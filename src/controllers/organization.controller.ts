@@ -27,6 +27,10 @@ export async function createOrganizationHandler(
       name,
     );
 
+    req.log.info(
+      { organizationId: organization.id },
+      "Organization created successfully",
+    );
     res.status(201).json(organization);
   } catch (error) {
     next(error);
@@ -67,6 +71,10 @@ export async function inviteMemberHandler(
       role,
     );
 
+    req.log.info(
+      { invitationId: invitation.id },
+      "Invitation created successfully",
+    );
     res.json(invitation);
   } catch (error) {
     next(error);
@@ -84,6 +92,10 @@ export async function acceptInviteHandler(
 
     const invitation = await organizationService.acceptInvite(userId, token);
 
+    req.log.info(
+      { invitationId: invitation.id },
+      "Invitation accepted successfully",
+    );
     res.json(invitation);
   } catch (error) {
     next(error);

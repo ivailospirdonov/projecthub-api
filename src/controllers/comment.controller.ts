@@ -18,6 +18,7 @@ export async function createCommentHandler(
 
     const comment = await commentService.createComment(userId, input);
 
+    req.log.info({ commentId: comment.id }, "Comment created successfully");
     return res.status(201).json(comment);
   } catch (error) {
     next(error);
@@ -37,6 +38,7 @@ export async function deleteCommentHandler(
 
     const result = await commentService.deleteComment(userId, commentId);
 
+    req.log.info({ commentId }, "Comment deleted successfully");
     return res.json(result);
   } catch (error) {
     next(error);

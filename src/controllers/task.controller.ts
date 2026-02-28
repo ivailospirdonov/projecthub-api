@@ -30,6 +30,7 @@ export async function createTaskHandler(
       description,
     );
 
+    req.log.info({ taskId: task.id }, "Task created successfully");
     return res.status(201).json(task);
   } catch (error) {
     next(error);
@@ -70,6 +71,7 @@ export async function updateTaskHandler(
       assigneeId,
     });
 
+    req.log.info({ taskId }, "Task updated successfully");
     return res.json(updatedTask);
   } catch (error) {
     next(error);
@@ -87,6 +89,7 @@ export async function deleteTaskHandler(
 
     const result = await taskService.deleteTask(taskId, userId);
 
+    req.log.info({ taskId }, "Task deleted successfully");
     return res.json(result);
   } catch (error) {
     next(error);
@@ -111,6 +114,7 @@ export async function changeTaskStatusHandler(
       status,
     );
 
+    req.log.info({ taskId, status }, "Task status changed successfully");
     return res.json(updatedTask);
   } catch (error) {
     next(error);

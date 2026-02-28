@@ -30,6 +30,7 @@ export async function updateProfileHandler(
     const input: UpdateProfileData = updateProfileSchema.parse(req.body);
     const updatedUser = await updateProfile(userId, input);
 
+    req.log.info({ userId }, "User updated successfully");
     return res.json(updatedUser);
   } catch (error) {
     next(error);

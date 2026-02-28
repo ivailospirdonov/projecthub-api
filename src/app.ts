@@ -1,19 +1,22 @@
 import cors from "cors";
 import express from "express";
-import authRouter from "./routes/auth.routes";
-import userRouter from "./routes/user.routes";
-import taskRouter from "./routes/task.routes";
-import tagRouter from "./routes/tag.routes";
-import auditRouter from "./routes/audit.routes";
-import commentRouter from "./routes/comment.routes";
-import projectRouter from "./routes/project.routes";
-import organizationRouter from "./routes/organization.routes";
+import { pinoHttp } from "pino-http";
 import { errorHandler } from "./middlewares/error.middleware";
+import auditRouter from "./routes/audit.routes";
+import authRouter from "./routes/auth.routes";
+import commentRouter from "./routes/comment.routes";
+import organizationRouter from "./routes/organization.routes";
+import projectRouter from "./routes/project.routes";
+import tagRouter from "./routes/tag.routes";
+import taskRouter from "./routes/task.routes";
+import userRouter from "./routes/user.routes";
+import { logger } from "./utils/logger";
 
 export const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(pinoHttp({ logger }));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);

@@ -16,6 +16,8 @@ export async function signupHandler(
 
   try {
     const tokens = await authService.signup(input);
+
+    req.log.info({ email: input.email }, "User created successfully");
     res.status(201).json(tokens);
   } catch (error) {
     next(error);
@@ -28,8 +30,11 @@ export async function loginHandler(
   next: NextFunction,
 ) {
   const input: LoginInput = loginSchema.parse(req.body);
+
   try {
     const tokens = await authService.login(input);
+
+    req.log.info({}, "User logged in successfully");
     res.json(tokens);
   } catch (error) {
     next(error);

@@ -1,5 +1,5 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
-import { prisma } from "../prisma";
+import { prisma } from "../utils/prisma";
 import { CreateCommentInput } from "../validators/comment.validations";
 import { AppError } from "../errors/app-error";
 import { ErrorCodes } from "../errors/error-codes";

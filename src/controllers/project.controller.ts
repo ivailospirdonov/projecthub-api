@@ -36,6 +36,8 @@ export async function createProjectHandler(
       organizationId,
       tasks,
     );
+
+    req.log.info({ projectId: project.id }, "Project created successfully");
     return res.status(201).json(project);
   } catch (error) {
     next(error);
@@ -78,6 +80,8 @@ export async function updateProjectHandler(
       name,
       description,
     });
+
+    req.log.info({ projectId: project.id }, "Project updated successfully");
     return res.json(project);
   } catch (error) {
     next(error);
@@ -96,6 +100,8 @@ export async function deleteProjectHandler(
     );
 
     const result = await projectService.deleteProject(projectId, userId);
+
+    req.log.info({ projectId }, "Project deleted successfully");
     return res.json(result);
   } catch (error) {
     next(error);

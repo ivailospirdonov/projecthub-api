@@ -3,7 +3,7 @@ import crypto from "crypto";
 import slugify from "slugify";
 import { AppError } from "../errors/app-error";
 import { ErrorCodes } from "../errors/error-codes";
-import { prisma } from "../prisma";
+import { prisma } from "../utils/prisma";
 
 export async function createOrganization(userId: number, name: string) {
   const baseSlug = slugify(name, { lower: true, strict: true });
