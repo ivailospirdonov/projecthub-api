@@ -8,6 +8,14 @@ module.exports = {
   clearMocks: true,
   testEnvironment: "node",
   transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        tsconfig: "tsconfig.json",
+      },
+    ],
     ...tsJestTransformCfg,
   },
+  setupFiles: ["<rootDir>/tests/setup.ts"],
+  roots: ["<rootDir>/tests"],
 };

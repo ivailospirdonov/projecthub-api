@@ -8,5 +8,6 @@
     "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
+  "include": ["src"],
   "exclude": ["prisma.config.ts"]
 }

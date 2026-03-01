@@ -37,7 +37,7 @@ export async function signup({ email, password }: SignupInput) {
     select: {},
   });
 
-  if (!existingUser) {
+  if (existingUser) {
     throw new AppError(
       "User already exists",
       409,
