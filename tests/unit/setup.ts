@@ -12,12 +12,17 @@ jest.mock("jsonwebtoken", () => ({
   sign: jest.fn(() => "mocked-token"),
 }));
 
-jest.mock("../src/utils/prisma", () => ({
+jest.mock("uuid", () => ({
+  v4: jest.fn(() => "mocked-uuid"),
+}));
+
+jest.mock("../../src/utils/prisma", () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deleteMany: jest.fn(),
     },
     auditLog: {
       create: jest.fn(),

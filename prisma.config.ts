@@ -1,13 +1,9 @@
-module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
+// prisma.config.ts
 
-  roots: ["<rootDir>/tests"],
+import { defineConfig } from "@prisma/config";
 
-  moduleFileExtensions: ["ts", "js", "json"],
-
-  clearMocks: true,
-
-  collectCoverage: true,
-  coverageDirectory: "coverage",
-};
+export default defineConfig({
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
+});

@@ -34,7 +34,7 @@ export async function comparePasswords(password: string, hashed: string) {
 export async function signup({ email, password }: SignupInput) {
   const existingUser = await prisma.user.findUnique({
     where: { email },
-    select: {},
+    select: { id: true },
   });
 
   if (existingUser) {

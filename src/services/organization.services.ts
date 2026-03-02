@@ -157,7 +157,6 @@ export async function acceptInvite(userId: number, token: string) {
           organizationId: invitation.organizationId,
         },
       },
-      select: {},
     });
 
     if (existingMembership) {
