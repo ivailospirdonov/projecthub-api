@@ -9,6 +9,6 @@ export const listAuditSchema = z.object({
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
 
-  cursor: z.coerce.number().optional(),
-  take: z.coerce.number().default(50),
+  cursor: z.coerce.number().int().positive().optional(),
+  take: z.coerce.number().int().positive().max(100).default(50),
 });

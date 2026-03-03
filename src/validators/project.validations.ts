@@ -60,13 +60,7 @@ export const listProjectsParamsSchema = z.object({
 });
 
 export const listProjectsQuerySchema = z.object({
-  cursor: z
-    .string()
-    .optional()
-    .transform((val) => (val ? Number(val) : undefined)),
+  cursor: z.coerce.number().int().positive().optional(),
 
-  take: z
-    .string()
-    .optional()
-    .transform((val) => (val ? Number(val) : 10)),
+  take: z.coerce.number().int().positive().max(100).default(10),
 });
