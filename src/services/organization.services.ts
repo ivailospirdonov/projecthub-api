@@ -92,7 +92,7 @@ export async function inviteMember(
     !membership ||
     (membership.role !== "ADMIN" && membership.role !== "OWNER")
   ) {
-    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Insufficient permissions", 403, ErrorCodes.FORBIDDEN);
   }
 
   const token = crypto.randomBytes(32).toString("hex");

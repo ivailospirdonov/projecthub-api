@@ -9,15 +9,13 @@ import { ErrorCodes } from "../errors/error-codes";
 
 const SALT_ROUNDS = 10;
 
-export function generateAccessToken(payload: any) {
-  // remove any
+export function generateAccessToken(payload: { userId: number }) {
   return jwt.sign(payload, jwtConfig.accessSecret, {
     expiresIn: jwtConfig.accessExpiresIn,
   });
 }
 
-export function generateRefreshToken(payload: any) {
-  // remove any
+export function generateRefreshToken(payload: { userId: number }) {
   return jwt.sign(payload, jwtConfig.refreshSecret, {
     expiresIn: jwtConfig.refreshExpiresIn,
   });

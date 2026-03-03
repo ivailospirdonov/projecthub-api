@@ -44,7 +44,7 @@ export async function createTask(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const task = await prisma.task.create({
@@ -97,7 +97,7 @@ export async function getTask(taskId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   return task;
@@ -140,7 +140,7 @@ export async function updateTask(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const updatedTask = await prisma.task.update({
@@ -192,11 +192,11 @@ export async function deleteTask(taskId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "OWNER" && membership.role !== "ADMIN") {
-    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Insufficient permissions", 403, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.task.delete({
@@ -250,7 +250,7 @@ export async function changeTaskStatus(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const currentStatus = task.status;
@@ -316,7 +316,7 @@ export async function listTasks(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const where: Prisma.TaskWhereInput = {

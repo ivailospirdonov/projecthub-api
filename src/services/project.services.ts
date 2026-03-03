@@ -22,7 +22,7 @@ export async function createProject(
     });
 
     if (!membership) {
-      throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+      throw new AppError("Access denied", 3, ErrorCodes.FORBIDDEN);
     }
 
     const project = await tx.project.create({
@@ -79,7 +79,7 @@ export async function getProject(projectId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   return project;
@@ -116,11 +116,11 @@ export async function updateProject(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "ADMIN" && membership.role !== "OWNER") {
-    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Insufficient permissions", 403, ErrorCodes.FORBIDDEN);
   }
 
   const updateProject = await prisma.project.update({
@@ -168,11 +168,11 @@ export async function deleteProject(projectId: number, userId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   if (membership.role !== "ADMIN" && membership.role !== "OWNER") {
-    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Insufficient permissions", 403, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.project.delete({
@@ -211,7 +211,7 @@ export async function listProjects(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const projects = await prisma.project.findMany({

@@ -136,7 +136,7 @@ describe("Organization API Integration", () => {
         role: "MEMBER",
       });
 
-    expect(res.status).toBe(409);
+    expect(res.status).toBe(403);
   });
 
   function uniqueEmail(prefix: string) {

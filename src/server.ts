@@ -1,9 +1,10 @@
 import "dotenv/config";
-import "./utils/cron";
 import { app } from "./app";
+import "./utils/cron";
+import { logger } from "./utils/logger";
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on http://localhost:${PORT}`);
 });

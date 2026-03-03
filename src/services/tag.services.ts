@@ -16,7 +16,7 @@ export async function createTag(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const tag = await prisma.tag.create({
@@ -48,7 +48,7 @@ export async function listTags(userId: number, organizationId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   return prisma.tag.findMany({
@@ -98,7 +98,7 @@ export async function attachTagToTask(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   let taskTag = await prisma.taskTag.create({
@@ -161,7 +161,7 @@ export async function detachTagFromTask(
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.taskTag.delete({
