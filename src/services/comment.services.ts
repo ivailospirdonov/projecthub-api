@@ -33,7 +33,7 @@ export async function createComment(userId: number, input: CreateCommentInput) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   const comment = await prisma.comment.create({
@@ -89,7 +89,7 @@ export async function deleteComment(userId: number, commentId: number) {
   });
 
   if (!membership) {
-    throw new AppError("Access denied", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
   if (
@@ -97,7 +97,7 @@ export async function deleteComment(userId: number, commentId: number) {
     membership.role !== "ADMIN" &&
     membership.role !== "OWNER"
   ) {
-    throw new AppError("Insufficient permissions", 409, ErrorCodes.FORBIDDEN);
+    throw new AppError("Insufficient permissions", 403, ErrorCodes.FORBIDDEN);
   }
 
   await prisma.comment.delete({
