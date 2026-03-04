@@ -21,8 +21,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     const token = tokenParts[1];
     const decoded = jwt.verify(token, jwtConfig.accessSecret);
 
-    // Add userId to the request
-    (req as any).user = decoded; // remove any
+    req.user = decoded as { userId: number };
 
     next();
   } catch (err) {

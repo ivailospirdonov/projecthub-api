@@ -17,7 +17,7 @@ export async function createOrganizationHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { name }: CreateOrganizationInput = createOrganizationSchema.parse(
       req.body,
     );
@@ -43,7 +43,7 @@ export async function listOrganizationsHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
 
     const organization =
       await organizationService.listUserOrganizations(userId);
@@ -60,7 +60,7 @@ export async function inviteMemberHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { slug }: InviteParams = inviteParamsSchema.parse(req.params);
     const { email, role }: InviteBody = inviteBodySchema.parse(req.body);
 
@@ -87,7 +87,7 @@ export async function acceptInviteHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; // remove any
+    const userId = req.user!.userId;
     const { token }: AcceptInviteInput = acceptInviteSchema.parse(req.body);
 
     const invitation = await organizationService.acceptInvite(userId, token);

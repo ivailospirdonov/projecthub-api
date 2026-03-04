@@ -19,7 +19,7 @@ export async function createProjectHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const {
       name,
       description,
@@ -50,7 +50,7 @@ export async function getProjectHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
       req.params,
     );
@@ -68,7 +68,7 @@ export async function updateProjectHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
       req.params,
     );
@@ -94,7 +94,7 @@ export async function deleteProjectHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: projectId }: ProjectIdParam = projectIdParamSchema.parse(
       req.params,
     );
@@ -114,7 +114,7 @@ export async function listProjectsHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { organizationId }: ListProjectsParams =
       listProjectsParamsSchema.parse(req.params);
     const { cursor, take }: ListProjectsQuery = listProjectsQuerySchema.parse(

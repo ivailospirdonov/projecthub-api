@@ -19,7 +19,7 @@ export async function createTaskHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { title, description, projectId }: CreateTaskInput =
       createTaskSchema.parse(req.body);
 
@@ -43,7 +43,7 @@ export async function getTaskHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
 
     const task = await taskService.getTask(taskId, userId);
@@ -60,7 +60,7 @@ export async function updateTaskHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
     const { title, description, assigneeId }: UpdateTaskInput =
       updateTaskSchema.parse(req.body);
@@ -84,7 +84,7 @@ export async function deleteTaskHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
 
     const result = await taskService.deleteTask(taskId, userId);
@@ -102,7 +102,7 @@ export async function changeTaskStatusHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: taskId }: TaskIdParam = taskIdParamSchema.parse(req.params);
     const { status }: ChangeTaskStatusInput = changeTaskStatusSchema.parse(
       req.body,
@@ -127,7 +127,7 @@ export async function listTasksHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
 
     const { projectId, status, assigneeId, sort, order }: ListTasksQuery =
       listTasksQuerySchema.parse(req.query);

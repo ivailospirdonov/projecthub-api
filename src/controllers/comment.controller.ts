@@ -13,7 +13,7 @@ export async function createCommentHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const input: CreateCommentInput = createCommentSchema.parse(req.body);
 
     const comment = await commentService.createComment(userId, input);
@@ -31,7 +31,7 @@ export async function deleteCommentHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { id: commentId }: DeleteCommentInput = deleteCommentSchema.parse(
       req.query,
     );

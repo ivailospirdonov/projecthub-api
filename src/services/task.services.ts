@@ -143,6 +143,25 @@ export async function updateTask(
     throw new AppError("Access denied", 403, ErrorCodes.FORBIDDEN);
   }
 
+  if (data.assigneeId && data.assigneeId !== null) {
+    const assigneeMembership = await prisma.userOrganization.findUnique({
+      where: {
+        userId_organizationId: {
+          userId: data.assigneeId,
+          organizationId: task.project.organizationId,
+        },
+      },
+    });
+
+    if (!assigneeMembership) {
+      throw new AppError(
+        "Assignee must belong to the same organization",
+        400,
+        ErrorCodes.INVALID_ASSIGNEE,
+      );
+    }
+  }
+
   const updatedTask = await prisma.task.update({
     where: { id: taskId },
     data,

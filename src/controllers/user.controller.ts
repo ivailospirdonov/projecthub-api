@@ -11,7 +11,7 @@ export async function getProfileHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user!.userId; // remove any
+    const userId = req.user!.userId;
     const user = await getProfile(userId);
 
     return res.json(user);
@@ -26,7 +26,7 @@ export async function updateProfileHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user!.userId; // remove any
+    const userId = req.user!.userId;
     const input: UpdateProfileData = updateProfileSchema.parse(req.body);
     const updatedUser = await updateProfile(userId, input);
 

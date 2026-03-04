@@ -1,6 +1,5 @@
 import { AppError } from "../errors/app-error";
 import { ErrorCodes } from "../errors/error-codes";
-import { logger } from "../utils/logger";
 import { prisma } from "../utils/prisma";
 
 export async function checkHealth() {
@@ -11,7 +10,7 @@ export async function checkHealth() {
       status: "ok",
       timestamp: new Date().toISOString(),
     };
-  } catch (err: any) {
+  } catch (err) {
     throw new AppError(
       "Health check failed",
       500,

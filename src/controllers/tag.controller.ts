@@ -15,7 +15,7 @@ export async function createTagHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { organizationId, name }: CreateTagInput = createTagSchema.parse(
       req.body,
     );
@@ -35,7 +35,7 @@ export async function listTagsHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { organizationId }: ListTagsQuery = listTagsQuerySchema.parse(
       req.query,
     );
@@ -60,7 +60,7 @@ export async function attachTagHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { taskId, tagId }: TagTaskInput = tagTaskSchema.parse(req.body);
 
     const result = await tagService.attachTagToTask(userId, taskId, tagId);
@@ -78,7 +78,7 @@ export async function detachTagHandler(
   next: NextFunction,
 ) {
   try {
-    const userId = (req as any).user.userId; //remove any;
+    const userId = req.user!.userId;
     const { taskId, tagId }: TagTaskInput = tagTaskSchema.parse(req.body);
 
     const result = await tagService.detachTagFromTask(userId, taskId, tagId);
