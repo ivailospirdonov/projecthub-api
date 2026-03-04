@@ -3,6 +3,8 @@ import * as authService from "../services/auth.services";
 import {
   LoginInput,
   loginSchema,
+  RefreshTokenInput,
+  refreshTokenSchema,
   SignupInput,
   signupSchema,
 } from "../validators/auth.validations";
@@ -36,6 +38,24 @@ export async function loginHandler(
 
     req.log.info({}, "User logged in successfully");
     res.json(tokens);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function refreshHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { refreshToken }: RefreshTokenInput = refreshTokenSchema.parse(
+      req.body,
+    );
+
+    const tokens = await authService.refreshAccessToken(refreshToken);
+
+    return res.json(tokens);
   } catch (error) {
     next(error);
   }

@@ -124,3 +124,51 @@ export async function login({ email, password }: LoginInput) {
     refreshToken,
   };
 }
+
+export async function refreshAccessToken(refreshToken: string) {
+  const storedToken = await prisma.refreshToken.findUnique({
+    where: { token: refreshToken },
+    include: { user: true },
+  });
+
+  if (!storedToken) {
+    throw new AppError(
+      "Invalid refresh token",
+      401,
+      ErrorCodes.INVALID_REFRESH_TOKEN,
+    );
+  }
+
+  if (storedToken.revoked) {
+    throw new AppError("Refresh token revoked", 401, ErrorCodes.REVOKED_TOKEN);
+  }
+
+  if (storedToken.expiresAt < new Date()) {
+    throw new AppError("Refresh token expired", 401, ErrorCodes.EXPIRED_TOKEN);
+  }
+
+  const newAccessToken = generateAccessToken({
+    userId: storedToken.user.id,
+  });
+
+  const newRefreshToken = generateRefreshToken({ userId: storedToken.user.id });
+
+  await prisma.$transaction([
+    prisma.refreshToken.update({
+      where: { id: storedToken.id },
+      data: { revoked: true },
+    }),
+    prisma.refreshToken.create({
+      data: {
+        token: newRefreshToken,
+        userId: storedToken.userId,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    }),
+  ]);
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
+}
