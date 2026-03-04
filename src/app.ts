@@ -3,6 +3,10 @@ import { pinoHttp } from "pino-http";
 import { v4 as uuidv4 } from "uuid";
 import { corsMiddleware } from "./middlewares/cors.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
+import {
+  authRateLimiter,
+  globalRateLimiter,
+} from "./middlewares/rate-limit.middleware";
 import auditRouter from "./routes/audit.routes";
 import authRouter from "./routes/auth.routes";
 import commentRouter from "./routes/comment.routes";
@@ -17,10 +21,11 @@ import { logger } from "./utils/logger";
 export const app = express();
 
 app.use(corsMiddleware);
+app.use(globalRateLimiter);
 app.use(express.json());
 app.use(pinoHttp({ logger, genReqId: () => uuidv4() }));
 
-app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/auth", authRateLimiter, authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/tasks", taskRouter);
 app.use("/api/v1/tags", tagRouter);

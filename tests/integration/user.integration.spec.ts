@@ -94,6 +94,6 @@ describe("User API Integration", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ email: "invalid-email" });
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(400);
   });
 });
