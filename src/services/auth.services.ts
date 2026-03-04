@@ -1,6 +1,7 @@
 import { AuditAction, AuditEntityType } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import ms, { StringValue } from "ms";
 import { jwtConfig } from "../config/jwt.config";
 import { prisma } from "../utils/prisma";
 import { LoginInput, SignupInput } from "../validators/auth.validations";
@@ -27,6 +28,10 @@ export async function hashPassword(password: string) {
 
 export async function comparePasswords(password: string, hashed: string) {
   return bcrypt.compare(password, hashed);
+}
+
+function getRefreshTokenExpiryDate() {
+  return new Date(Date.now() + ms(jwtConfig.refreshExpiresIn as StringValue));
 }
 
 export async function signup({ email, password }: SignupInput) {
@@ -72,7 +77,7 @@ export async function signup({ email, password }: SignupInput) {
     data: {
       token: refreshToken,
       userId: user.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: getRefreshTokenExpiryDate(),
     },
   });
 
@@ -115,7 +120,7 @@ export async function login({ email, password }: LoginInput) {
     data: {
       token: refreshToken,
       userId: user.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: getRefreshTokenExpiryDate(),
     },
   });
 
@@ -162,7 +167,7 @@ export async function refreshAccessToken(refreshToken: string) {
       data: {
         token: newRefreshToken,
         userId: storedToken.userId,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        expiresAt: getRefreshTokenExpiryDate(),
       },
     }),
   ]);
