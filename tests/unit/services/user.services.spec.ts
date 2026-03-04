@@ -42,7 +42,7 @@ describe("User Service - Unit", () => {
   });
 
   describe("updateProfile", () => {
-    it("should update user and create audit log", async () => {
+    it("should update user", async () => {
       const input = {
         name: "Updated Name",
       };
@@ -55,7 +55,6 @@ describe("User Service - Unit", () => {
       };
 
       (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
-      (prisma.auditLog.create as jest.Mock).mockResolvedValue({});
 
       const result = await userService.updateProfile(1, input);
 
@@ -67,16 +66,6 @@ describe("User Service - Unit", () => {
           name: true,
           email: true,
           createdAt: true,
-        },
-      });
-
-      expect(prisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
-          userId: 1,
-          action: expect.any(String),
-          entityType: expect.any(String),
-          entityId: 1,
-          metadata: input,
         },
       });
 

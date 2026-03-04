@@ -97,7 +97,10 @@ describe("Tag Service - Unit", () => {
         project: { organizationId: 10 },
       });
 
-      (prisma.tag.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+      (prisma.tag.findUnique as jest.Mock).mockResolvedValue({
+        id: 1,
+        organizationId: 10,
+      });
       (prisma.userOrganization.findUnique as jest.Mock).mockResolvedValue({});
 
       (prisma.taskTag.create as jest.Mock).mockResolvedValue({

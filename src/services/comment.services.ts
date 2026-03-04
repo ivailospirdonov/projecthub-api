@@ -47,6 +47,7 @@ export async function createComment(userId: number, input: CreateCommentInput) {
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: task.project.organizationId,
       action: AuditAction.CREATED,
       entityType: AuditEntityType.COMMENT,
       entityId: comment.id,
@@ -107,6 +108,7 @@ export async function deleteComment(userId: number, commentId: number) {
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: comment.task.project.organizationId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.COMMENT,
       entityId: commentId,

@@ -46,6 +46,7 @@ export async function createProject(
     await tx.auditLog.create({
       data: {
         userId,
+        organizationId,
         action: AuditAction.CREATED,
         entityType: AuditEntityType.PROJECT,
         entityId: project.id,
@@ -131,6 +132,7 @@ export async function updateProject(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: project.organizationId,
       action: AuditAction.UPDATED,
       entityType: AuditEntityType.PROJECT,
       entityId: projectId,
@@ -184,6 +186,7 @@ export async function deleteProject(projectId: number, userId: number) {
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: project.organizationId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.PROJECT,
       entityId: projectId,

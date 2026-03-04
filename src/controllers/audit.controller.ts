@@ -11,9 +11,10 @@ export async function listAuditLogsHandler(
   next: NextFunction,
 ) {
   try {
+    const userId = req.user!.userId;
     const filters: ListAuditInput = listAuditSchema.parse(req.query);
 
-    const logs = await auditService.listAuditLogs(filters);
+    const logs = await auditService.listAuditLogs(userId, filters);
 
     res.json(logs);
   } catch (error) {

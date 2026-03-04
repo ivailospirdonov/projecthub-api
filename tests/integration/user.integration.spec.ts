@@ -71,23 +71,6 @@ describe("User API Integration", () => {
     expect(userInDb?.name).toBe("Updated Name");
   });
 
-  it("should create audit log on profile update", async () => {
-    await request(app)
-      .patch("/api/v1/user")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({ name: "Audit Name" });
-
-    const audit = await prisma.auditLog.findFirst({
-      where: {
-        userId,
-        entityType: "USER",
-        action: "UPDATED",
-      },
-    });
-
-    expect(audit).not.toBeNull();
-  });
-
   it("should return 400 for invalid input", async () => {
     const res = await request(app)
       .patch("/api/v1/user")

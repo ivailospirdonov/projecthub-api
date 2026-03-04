@@ -35,7 +35,6 @@ describe("Auth Service - Unit", () => {
       });
 
       expect(prisma.user.create).toHaveBeenCalled();
-      expect(prisma.auditLog.create).toHaveBeenCalled();
       expect(prisma.refreshToken.create).toHaveBeenCalled();
 
       expect(result).toEqual({

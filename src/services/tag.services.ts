@@ -29,6 +29,7 @@ export async function createTag(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId,
       action: AuditAction.CREATED,
       entityType: AuditEntityType.TAG,
       entityId: tag.id,
@@ -120,6 +121,7 @@ export async function attachTagToTask(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: task.project.organizationId,
       action: AuditAction.ATTACHED,
       entityType: AuditEntityType.TAG,
       entityId: tagId,
@@ -185,6 +187,7 @@ export async function detachTagFromTask(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: task.project.organizationId,
       action: AuditAction.DETACHED,
       entityType: AuditEntityType.TAG,
       entityId: tagId,

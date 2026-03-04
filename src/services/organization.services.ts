@@ -31,6 +31,7 @@ export async function createOrganization(userId: number, name: string) {
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: organization.id,
       action: AuditAction.CREATED,
       entityType: AuditEntityType.ORGANIZATION,
       entityId: organization.id,
@@ -110,6 +111,7 @@ export async function inviteMember(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: organization.id,
       action: AuditAction.MEMBER_INVITED,
       entityType: AuditEntityType.ORGANIZATION,
       entityId: invitation.id,
@@ -183,6 +185,7 @@ export async function acceptInvite(userId: number, token: string) {
     await tx.auditLog.create({
       data: {
         userId,
+        organizationId: invitation.organizationId,
         action: AuditAction.MEMBER_JOINED,
         entityType: AuditEntityType.ORGANIZATION,
         entityId: invitation.id,

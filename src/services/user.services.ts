@@ -34,15 +34,5 @@ export async function updateProfile(userId: number, input: UpdateProfileData) {
     },
   });
 
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action: AuditAction.UPDATED,
-      entityType: AuditEntityType.USER,
-      entityId: userId,
-      metadata: input,
-    },
-  });
-
   return user;
 }

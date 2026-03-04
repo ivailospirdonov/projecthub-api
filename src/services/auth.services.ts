@@ -60,16 +60,6 @@ export async function signup({ email, password }: SignupInput) {
     },
   });
 
-  await prisma.auditLog.create({
-    data: {
-      userId: user.id,
-      action: AuditAction.CREATED,
-      entityType: AuditEntityType.USER,
-      entityId: user.id,
-      metadata: { email },
-    },
-  });
-
   const accessToken = generateAccessToken({ userId: user.id });
   const refreshToken = generateRefreshToken({ userId: user.id });
 

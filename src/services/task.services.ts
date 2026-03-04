@@ -58,6 +58,7 @@ export async function createTask(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: project.organizationId,
       action: AuditAction.CREATED,
       entityType: AuditEntityType.TASK,
       entityId: task.id,
@@ -170,6 +171,7 @@ export async function updateTask(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: task.project.organizationId,
       action: AuditAction.UPDATED,
       entityType: AuditEntityType.TASK,
       entityId: taskId,
@@ -207,6 +209,7 @@ export async function deleteTask(taskId: number, userId: number) {
     },
     select: {
       role: true,
+      organizationId: true,
     },
   });
 
@@ -225,6 +228,7 @@ export async function deleteTask(taskId: number, userId: number) {
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: membership.organizationId,
       action: AuditAction.DELETED,
       entityType: AuditEntityType.TASK,
       entityId: taskId,
@@ -291,6 +295,7 @@ export async function changeTaskStatus(
   await prisma.auditLog.create({
     data: {
       userId,
+      organizationId: task.project.organizationId,
       action: AuditAction.STATUS_CHANGED,
       entityType: AuditEntityType.TASK,
       entityId: taskId,
