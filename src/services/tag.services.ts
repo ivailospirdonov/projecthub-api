@@ -80,11 +80,21 @@ export async function attachTagToTask(
 
   const tag = await prisma.tag.findUnique({
     where: { id: tagId },
-    select: {},
+    select: {
+      organizationId: true,
+    },
   });
 
   if (!tag) {
     throw new AppError("Tag not found", 404, ErrorCodes.TAG_NOT_FOUND);
+  }
+
+  if (tag.organizationId !== task.project.organizationId) {
+    throw new AppError(
+      "Tag does not belong to the same organization",
+      403,
+      ErrorCodes.FORBIDDEN,
+    );
   }
 
   const membership = await prisma.userOrganization.findUnique({
@@ -94,7 +104,6 @@ export async function attachTagToTask(
         organizationId: task.project.organizationId,
       },
     },
-    select: {},
   });
 
   if (!membership) {
