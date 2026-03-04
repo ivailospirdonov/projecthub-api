@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { AppError } from "../errors/app-error";
+import { logger as baseLogger } from "../utils/logger";
 
 export function errorHandler(
   err: unknown,
@@ -8,9 +9,11 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ) {
+  const logger = req?.log ?? baseLogger;
+
   // ZOD VALIDATION ERROR
   if (err instanceof ZodError) {
-    req.log.warn({ issues: err.issues }, "Validation error");
+    logger.warn({ issues: err.issues }, "Validation error");
 
     return res.status(400).json({
       success: false,
@@ -27,7 +30,7 @@ export function errorHandler(
 
   // CUSTOM APP ERROR
   if (err instanceof AppError) {
-    req.log.warn(
+    logger.warn(
       {
         code: err.code,
         statusCode: err.statusCode,
@@ -47,7 +50,7 @@ export function errorHandler(
   }
 
   // UNEXPECTED ERROR
-  req.log.error({ err }, "Unhandled unexpected error");
+  logger.error({ err }, "Unhandled unexpected error");
 
   return res.status(500).json({
     success: false,
