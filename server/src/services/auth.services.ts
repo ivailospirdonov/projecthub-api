@@ -1,12 +1,14 @@
-import { AuditAction, AuditEntityType } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import ms, { StringValue } from "ms";
+import {
+  LoginInput,
+  SignupInput,
+} from "../../../shared/validators/auth.validations";
 import { jwtConfig } from "../config/jwt.config";
-import { prisma } from "../utils/prisma";
-import { LoginInput, SignupInput } from "../validators/auth.validations";
 import { AppError } from "../errors/app-error";
 import { ErrorCodes } from "../errors/error-codes";
+import { prisma } from "../utils/prisma";
 
 const SALT_ROUNDS = 10;
 

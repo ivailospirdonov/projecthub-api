@@ -2,3 +2,8 @@ server/node_modules
 server/dist
 server/.env
 server/.env.test
+
+client/node_modules
+client/dist
+
+node_modules

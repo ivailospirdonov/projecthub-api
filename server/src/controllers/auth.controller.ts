@@ -7,7 +7,7 @@ import {
   refreshTokenSchema,
   SignupInput,
   signupSchema,
-} from "../validators/auth.validations";
+} from "../../../shared/validators/auth.validations";
 
 export async function signupHandler(
   req: Request,
